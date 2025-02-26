@@ -1,10 +1,10 @@
+'use client'
 
 import { useAccount, useConnect, useDisconnect, useSignMessage, useBalance } from 'wagmi'
 import { getConfig } from '../../wagmi'
 
 const ConnectWallet = () => {
     const account = useAccount()
-    const config = getConfig()
     const { connectors, connect, status, error } = useConnect()
     const { signMessage, data: signData, error: signError } = useSignMessage()
     const { data: balance } = useBalance({
