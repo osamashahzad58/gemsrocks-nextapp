@@ -52,7 +52,7 @@ const ConnectWallet = () => {
                 Sign message
             </button>
             {signData && <div>{signData}</div>}
-            {signError && <div>{"Bhosri wale ne sign reject kr diya ha !!"}</div>}
+            {signError && <div>{"User rejected the transaction !!"}</div>}
         </>
     )
 }
