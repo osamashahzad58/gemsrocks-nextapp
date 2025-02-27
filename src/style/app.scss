@@ -1,11 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Unbounded:wght@200..900&family=Vesper+Libre:wght@400;500;700;900&display=swap');
+@import "node_modules/bootstrap/scss/bootstrap";
+@import "./navbar.scss";
+@import "./footer.scss";
+@import "./banner.scss";
+@import "./chart.scss";
+@import "./createnewnetwork.scss";
+@import "./createnewtoken.scss";
+@import "./gems.scss";
+@import "./rocks.scss";
+
+
 html {
   scroll-behavior: smooth;
 }
-// @font-face {
-//   font-family: "hmedium";
-//   src: url("../src/font/helveteca/HelveticaNowDisplay-Medium.ttf");
-// }
+@font-face {
+  font-family: "hmedium";
+  src: url("../font/helveteca/HelveticaNowDisplay-Medium.ttf");
+}
 .shake {
   animation-name: spaceboots;
   animation-duration: 0.8s;
