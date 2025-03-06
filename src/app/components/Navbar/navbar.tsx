@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import React, { useState } from 'react'
 import { Dropdown, Modal, Offcanvas } from 'react-bootstrap';
-import { useAccount, useDisconnect } from 'wagmi';
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { usePathname } from 'next/navigation';
 
 const Navbar = () => {
     const account = useAccount()
+    const { connectors, connect, status, error } = useConnect()
     const { disconnect } = useDisconnect()
     const pathname = usePathname(); // Gets the current path
 
@@ -33,13 +34,6 @@ const Navbar = () => {
 
     const handleClose15 = () => setShow15(false);
     const handleShow15 = () => setShow15(true);
-
-    const disconnectWallet = async () => {
-        const connectorId = window?.localStorage?.getItem("connectorId");
-        // logout(connectorId);
-        // removeLocalStorage();
-        // history.push("/")
-    };
 
     const copyTextToClipboard = () => {
         const textToCopy = `${account.addresses?.slice(0, 5)}...${account.addresses?.slice(-3)}`;
@@ -105,7 +99,7 @@ const Navbar = () => {
 
                         <div className='buttons_div'>
 
-                            <Link href="/createnetwork">
+                            <Link href="/createtoken">
                                 <button className='Launch'>Launch Token</button>
                             </Link>
 
@@ -115,19 +109,19 @@ const Navbar = () => {
                                 <div className='profile_connect'>
                                     <Dropdown>
                                         <Dropdown.Toggle variant="success" id="dropdown-basic">
-                                            {/* <img className='profileImage' src={profile?.pfp ? profile?.pfp : '/asset/profileee.svg'} />
-                                            {profile?.alias ? profile.alias?.slice(0, 10) : `${account?.slice(0, 5)}...${account?.slice(-3)}`} */}
+                                            {/* <img className='profileImage' src={profile?.pfp ? profile?.pfp : '/asset/profileee.svg'} /> */}
+                                            {`${account?.address?.slice(0, 5)}...${account?.address?.slice(-3)}`}
                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
                                                 <path d="M4.99976 7.5L9.99976 12.5L14.9998 7.5" stroke="#311E1A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                                             </svg>
                                         </Dropdown.Toggle>
 
                                         <Dropdown.Menu>
-                                            <Link href="/createnewnetwork">
-                                                <Dropdown.Item href="#/createnewnetwork">My Profile</Dropdown.Item>
+                                            <Link href="/myprofile">
+                                                <Dropdown.Item href="#/myprofile">My Profile</Dropdown.Item>
                                             </Link>
 
-                                            <Dropdown.Item href="#/action-2" onClick={disconnectWallet}><h2>Disconnect</h2></Dropdown.Item>
+                                            <Dropdown.Item href="#/action-2" onClick={() => disconnect()}><h2>Disconnect</h2></Dropdown.Item>
                                         </Dropdown.Menu>
                                     </Dropdown>
 
@@ -248,9 +242,9 @@ const Navbar = () => {
                             </div>
                         </div>
                         <div>
-                            <Link href="/createnewnetwork">
+                            <Link href="/myprofile">
                                 <h3 >My Profile</h3></Link>
-                            <h4 onClick={() => { disconnectWallet(); handleClose5() }}>Disconnect</h4>
+                            <h4 onClick={() => { disconnect(); handleClose5() }}>Disconnect</h4>
                         </div>
                     </div>
                 </Offcanvas.Body>
@@ -345,19 +339,28 @@ const Navbar = () => {
 
 
                         {/* onClick={() => { connectWallet("42161"); handleClose22() }} */}
-                        <div className="metamask_div">
+                        <div className="metamask_div" onClick={() => { connect({ connector: connectors[0] }) }}>
                             <div className="imgmetamask">
                                 <img src="\asset\metamask.svg" />
                             </div>
+                            {/* {connectors.map((connector) => (
+                                <button
+                                    key={connector.uid}
+                                    onClick={() => connect({ connector[0] })}
+                                    type="button"
+                                >
+                                    {connector.name}
+                                </button>
+                            ))} */}
                             <h1>MetaMask  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="19" viewBox="0 0 18 19" fill="none">
                                 <path d="M5.25 5.75H12.75V13.25" stroke="#311E1A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                                 <path d="M5.25 13.25L12.75 5.75" stroke="#311E1A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                             </svg></h1>
                         </div>
                         <div className="metamask_div" onClick={() => {
-                            // trustWallet();
-                            handleClose15();
-                            handleClose22();
+                            connect({ connector: connectors[1] })
+                            // handleClose15();
+                            // handleClose22();
                         }}>
                             <div className="imgmetamask">
                                 <img src="\asset\WalletConnect.svg" />
