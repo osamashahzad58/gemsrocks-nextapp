@@ -1,7 +1,6 @@
 'use client'
 
 import { useAccount, useConnect, useDisconnect, useSignMessage, useBalance } from 'wagmi'
-import { getConfig } from '../../wagmi'
 
 const ConnectWallet = () => {
     const account = useAccount()
@@ -16,7 +15,6 @@ const ConnectWallet = () => {
         <>
             <div>
                 <h2>Account</h2>
-
                 <div>
                     status: {account.status}
                     <br />

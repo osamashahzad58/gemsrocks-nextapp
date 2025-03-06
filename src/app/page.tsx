@@ -1,12 +1,14 @@
 'use client'
 
-import ConnectWallet from "./components/ConnectWallet"
+import Navbar from "./components/Navbar/navbar"
 
 function App() {
 
   return (
     <>
-      <ConnectWallet />
+      <Navbar />
+      {/* <Banner />
+      <Footer />  */}
     </>
   )
 }
