@@ -1,27 +1,20 @@
 import React, { useEffect, useState } from 'react'
-// import "./banner.scss";
 // import "react-toastify/dist/ReactToastify.css";
 import Table from 'react-bootstrap/Table';
 import Pagination from 'react-bootstrap/Pagination';
 import Link from 'next/link';
-// import { api_url } from "../../../utils/Enviroment";
-// import axios from "axios";
-// import Loader from '../../../loader';
-// import { formatEthinDollar, formatMarketCap, getTimeInAges } from '../../../utils/helpers';
-// import { ethToDollarConverter } from '../../../utils/services/service';
-// import { useSocketEvents } from '../../../hooks/dataFetcher/Socket'
+import { useQuery } from '@tanstack/react-query';
+import { ethToDollarConverter, getAllProjectsData, getAllTopGainers, getDashboardData, getKingOfTheDesert, getTrendingData } from '@/app/services';
+import { formatEthinDollar, formatMarketCap, getTimeInAges } from '@/app/helpers';
+import { useSocketEvents } from '@/app/sockets';
 
 const Banner = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
     const [totalItems, setTotalItems] = useState(0);
-    const [rock, setRock] = useState([]);
-    const [trending, setTrending] = useState([]);
-    const [gainer, setGainer] = useState([]);
-    const [stats, setStats] = useState([]);
+    const [rock, setRock] = useState<any>([]);
     const [king, setKing] = useState([]);
     const [loader, setLoader] = useState(false);
-    const [ethPrice, setEthPrice] = useState(0);
     const [shake, setShake] = useState(false);
     const [shakeKing, setShakeKing] = useState(false);
 
@@ -29,122 +22,85 @@ const Banner = () => {
     const socketEvent = `NewProject`
     const socketEventKOD = `KOD`
 
-    //   const events = [
-    //     {
-    //       eventName: socketEvent,
-    //       handler: (data) => {
-    //         if (data !== null) {
-    //           setRock([data, ...rock])
-    //           setShake(true);
-    //           setTimeout(() => {
-    //             setShake(false);
-    //           }, 1500);
+    const events = [
+        {
+            eventName: socketEvent,
+            handler: (data: any) => {
+                if (data !== null) {
+                    setRock([data, ...rock])
+                    setShake(true);
+                    setTimeout(() => {
+                        setShake(false);
+                    }, 1500);
 
-    //         }
-    //       },
-    //     },
-    //     {
-    //       eventName: socketEventKOD,
-    //       handler: (data) => {
-    //         if (data !== null) {
-    //           setKing(data)
-    //           setShakeKing(true);
-    //           setTimeout(() => {
-    //             setShakeKing(false);
-    //           }, 1500);
-    //         }
-    //       },
-    //     }
-    //   ];
-    //   useSocketEvents(events);
+                }
+            },
+        },
+        {
+            eventName: socketEventKOD,
+            handler: (data: any) => {
+                if (data !== null) {
+                    setKing(data)
+                    setShakeKing(true);
+                    setTimeout(() => {
+                        setShakeKing(false);
+                    }, 1500);
+                }
+            },
+        }
+    ];
+    useSocketEvents(events);
 
-    //   const handlePageChange = (page) => {
-    //     if (page >= 1 && page <= totalPages) {
-    //       setCurrentPage(page);
-    //     }
-    //   };
+    const handlePageChange = (page: number) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+        }
+    };
 
-    //   const pageItems = [];
-    //   for (let i = 1; i <= totalPages; i++) {
-    //     pageItems.push(i);
-    //   }
+    const pageItems = [];
+    for (let i = 1; i <= totalPages; i++) {
+        pageItems.push(i);
+    }
 
-    //   const getRocks = async () => {
-    //     setLoader(true);
-    //     try {
-    //       const { data } = await axios.get(`${api_url}project/get-all-projects?limit=12&page=${currentPage}`,);
-    //       setRock(data?.data?.projects);
-    //       setTotalPages(data?.data?.totalPages);
-    //       setTotalItems(data?.data?.total);
-    //       setLoader(false);
-    //     } catch (error) {
-    //       console.error("Error fetching:", error);
-    //       setLoader(false);
-    //     }
-    //   };
+    const { data: allProjectsData, refetch } = useQuery({
+        queryKey: ["allProjectsData", currentPage],
+        queryFn: async () => getAllProjectsData(currentPage),
+        // refetchInterval: 100 * 60 * 5,
+        // staleTime: 1000 * 60 * 5,
+    });
 
+    const { data: trendingData, isLoading, isError, error } = useQuery({
+        queryKey: ["projectTransactions"],
+        queryFn: async () => getTrendingData(),
+    });
 
-    //   const getTranding = async () => {
-    //     try {
-    //       const { data } = await axios.get(`${api_url}project/get-trending-projects`,);
-    //       setTrending(data?.data?.projects)
+    const { data: allTopGainers } = useQuery({
+        queryKey: ["projectsTopGainers"],
+        queryFn: async () => getAllTopGainers(),
+    });
 
-    //     } catch (error) {
-    //       console.error("Error fetching:", error);
-    //       setLoader(false);
-    //     }
-    //   };
+    const { data: dashboardStats } = useQuery({
+        queryKey: ["projectsDashboardStats"],
+        queryFn: async () => getDashboardData(),
+    });
 
-    //   const getGainer = async () => {
-    //     try {
-    //       const { data } = await axios.get(`${api_url}project/get-top-gainer-projects`,);
-    //       setGainer(data?.data?.projects)
+    const { data: ethPrice } = useQuery({
+        queryKey: ["ethPrice"],
+        queryFn: async () => ethToDollarConverter(),
+    });
 
-    //     } catch (error) {
-    //       console.error("Error fetching:", error);
-    //       setLoader(false);
-    //     }
-    //   };
+    const { data: kingOfTheDesert } = useQuery({
+        queryKey: ["kingofthedesertdata"],
+        queryFn: async () => getKingOfTheDesert(),
+    });
 
-    //   const getStats = async () => {
-    //     try {
-    //       const { data } = await axios.get(`${api_url}dashboards/get-dashboard-data`,);
-    //       setStats(data?.data)
-
-    //     } catch (error) {
-    //       console.error("Error fetching:", error);
-    //       setLoader(false);
-    //     }
-    //   };
-
-    //   const getKing = async () => {
-    //     try {
-    //       const { data } = await axios.get(`${api_url}project/get-king-of-the-desert-project`,);
-    //       setKing(data?.data)
-
-    //     } catch (error) {
-    //       console.error("Error fetching:", error);
-    //       setLoader(false);
-    //     }
-    //   };
-
-    //   const fetchEthValue = async () => {
-    //     const ethAmount = await ethToDollarConverter();
-    //     setEthPrice(ethAmount);
-    //   };
-
-
-    //   useEffect(() => {
-    //     getTranding();
-    //     getGainer();
-    //     getStats();
-    //     getKing();
-    //     fetchEthValue();
-    //   }, []);
-
-    //   useEffect(() => {
-    //     getRocks();
-    //   }, [currentPage]);
+    useEffect(() => {
+        if (allProjectsData) {
+            setRock(allProjectsData?.data?.projects);
+            setTotalPages(allProjectsData?.data?.totalPages);
+            setTotalItems(allProjectsData?.data?.total);
+        }
+    }, [allProjectsData]);
 
     return (
         <>
@@ -160,10 +116,8 @@ const Banner = () => {
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
                                     <path d="M5.06864 3.60007L1.80051 7.02054V9.23905L9.00211 16.2001L16.2005 9.24279V8.34692H7.40762L8.01698 10.1965H12.1081L9.00147 13.2008L4.06677 8.42904L6.57241 5.80987H11.4305L12.5013 6.93033H15.7964V6.59811L12.9317 3.60007H5.06864Z" fill="#FFF3E2" />
                                 </svg> <span> <a href='https://gems.vip/' target='blank'>Gems</a></span></h4>
-                            {/* <h3>From Rocks to Gems</h3> */}
+                            <h3>From Rocks to Gems</h3>
                             <p className='bannner_ptag'>Unearth the potential hidden in every rock and watch it transform into a shining gem. From raw ideas to polished success, we help your tokens graduate to greatness.</p>
-
-
                             <div className='tokkenmain'>
                                 <Link href="/createnetwork">
                                     <button className='lunchtokken d-none'>
@@ -214,46 +168,45 @@ const Banner = () => {
                                     <div className="king_desert">
                                         <h1>King Of The Desert</h1>
                                         <div className="inner__Desert">
-                                            {/* <img src={king?.pfp ? king?.pfp : "asset/broken.png"} /> */}
+                                            <img src={kingOfTheDesert?.pfp ? kingOfTheDesert?.pfp : "asset/broken.png"} />
                                             <div>
-                                                {/* <h2>{king?.projectName ? king?.projectName : "--"}</h2> */}
-                                                {/* <p>{king?.ticker ? king?.ticker : "--"}</p> */}
+                                                <h2>{kingOfTheDesert?.projectName ? kingOfTheDesert?.projectName : "--"}</h2>
+                                                <p>{kingOfTheDesert?.ticker ? kingOfTheDesert?.ticker : "--"}</p>
                                             </div>
                                         </div>
-                                        {/* <h3>{king?.isGraduated ? (+king?.marketcap) >= 1 ? `$${formatMarketCap(+king?.marketcap)}` : "< $1" : king?.marketcap ? `$${formatEthinDollar(+king?.marketcap, ethPrice)}` : "--"}</h3> */}
+                                        <h3>{kingOfTheDesert?.isGraduated ? (+kingOfTheDesert?.marketcap) >= 1 ? `$${formatMarketCap(+kingOfTheDesert?.marketcap)}` : "< $1" : kingOfTheDesert?.marketcap ? `$${formatEthinDollar(+kingOfTheDesert?.marketcap, ethPrice)}` : "--"}</h3>
                                     </div></Link>
                             </div>
                             <div className="main_top_cards">
                                 <div className="left_side_cards">
                                     <div className="top_cards">
                                         <p>Rocks Created</p>
-                                        {/* <h1>{stats?.totalProjectCount ? stats?.totalProjectCount : "--"}</h1> */}
+                                        <h1>{dashboardStats?.totalProjectCount ? dashboardStats?.totalProjectCount : "--"}</h1>
                                     </div>
                                     <div className="top_cards">
                                         <p>Rocks Graduated</p>
-                                        {/* <h1>{stats?.graduatedProjectsCount ? stats?.graduatedProjectsCount : "--"}</h1> */}
+                                        <h1>{dashboardStats?.graduatedProjectsCount ? dashboardStats?.graduatedProjectsCount : "--"}</h1>
                                     </div>
                                 </div>
                                 <div className="left_side_cards">
                                     <div className="top_cards">
                                         <p>Volume Traded</p>
-                                        {/* <h1>$ {stats?.totalVolume ? formatEthinDollar(+stats?.totalVolume, ethPrice) : "--"}</h1> */}
+                                        <h1>$ {dashboardStats?.totalVolume ? formatEthinDollar(+dashboardStats?.totalVolume, ethPrice) : "--"}</h1>
                                     </div>
                                     <div className="top_cards">
                                         <p>Total Users</p>
-                                        {/* <h1>{stats?.userCount ? stats?.userCount : "--"}</h1> */}
+                                        <h1>{dashboardStats?.userCount ? dashboardStats?.userCount : "--"}</h1>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-
                         <div className="Top_charts">
                             <div className="trendingchart">
                                 <h1>Trending Rocks  <span>MCAP</span></h1>
                                 {
-                                    trending && trending?.length > 0 ? (
-                                        trending?.map((item, index) => {
+                                    trendingData && trendingData?.projects?.length > 0 ? (
+                                        trendingData?.projects?.map((item: any, index: number) => {
                                             return (
                                                 <>
                                                     {/* `/coin/${item?._id}` */}
@@ -261,18 +214,17 @@ const Banner = () => {
                                                         <div key={index} className="inner_chart">
                                                             <div className="chart_bottoms">
                                                                 <h2>{index + 1}.</h2>
-
                                                                 <div className="circle_img">
-                                                                    {/* <img className='img_penguaan' src={item.pfp ? item?.pfp : "asset/broken.png"} /> */}
+                                                                    <img className='img_penguaan' src={item?.pfp ? item?.pfp : "asset/broken.png"} />
                                                                     <div>
-                                                                        {/* <h3>{item?.projectName}</h3> */}
-                                                                        {/* <h4>${item?.ticker}</h4> */}
+                                                                        <h3>{item?.projectName}</h3>
+                                                                        <h4>${item?.ticker}</h4>
                                                                     </div>
                                                                 </div>
 
                                                             </div>
                                                             <div className="chart_bottoms new_chart">
-                                                                {/* <h5> {item?.isGraduated ? (+item?.marketcap) >= 1 ? `$${formatMarketCap(+item?.marketcap)}` : "< $1" : (+item?.marketcap) >= 1 ? `$${formatEthinDollar(+item?.marketcap, ethPrice)}` : "< $1"}</h5> */}
+                                                                <h5> {item?.isGraduated ? (+item?.marketcap) >= 1 ? `$${formatMarketCap(+item?.marketcap)}` : "< $1" : (+item?.marketcap) >= 1 ? `$${formatEthinDollar(+item?.marketcap, ethPrice)}` : "< $1"}</h5>
                                                             </div>
                                                         </div>
                                                     </Link>
@@ -291,41 +243,38 @@ const Banner = () => {
                                             </svg>
                                             <p >No data available at this time!</p>
                                         </div>
-
                                 }
                             </div>
                             <div className="trendingchart">
                                 <h1>Top Gainers <span>MCAP</span></h1>
                                 {
-                                    gainer && gainer?.length > 0 ? (
-                                        gainer?.map((item, index) => {
+                                    allTopGainers && allTopGainers?.data?.projects?.length > 0 ? (
+                                        allTopGainers?.data?.projects?.map((item: any, index: number) => {
                                             return (
                                                 <>
-                                                {/* `/coin/${item?._id}` */}
+                                                    {/* `/coin/${item?._id}` */}
                                                     <Link href={''} >
                                                         <div key={index} className="inner_chart">
                                                             <div className="chart_bottoms">
                                                                 <h2>{index + 1}.</h2>
-
                                                                 <div className="circle_img">
-                                                                    {/* <img className='img_penguaan' src={item.pfp ? item?.pfp : "asset/broken.png"} /> */}
+                                                                    <img className='img_penguaan' src={item.pfp ? item?.pfp : "asset/broken.png"} />
                                                                     <div>
-                                                                        {/* <h3>{item?.projectName}</h3> */}
-                                                                        {/* <h4>${item?.ticker}</h4> */}
+                                                                        <h3>{item?.projectName}</h3>
+                                                                        <h4>${item?.ticker}</h4>
                                                                     </div>
                                                                 </div>
 
                                                             </div>
                                                             <div className="chart_bottoms new_chart">
-                                                                {/* <h5> {item?.isGraduated ? (+item?.marketcap) >= 1 ? `$${formatMarketCap(+item?.marketcap)}` : "< $1" : (+item?.marketcap) >= 1 ? `$${formatEthinDollar(+item?.marketcap, ethPrice)}` : "< $1"}</h5> */}
+                                                                <h5> {item?.isGraduated ? (+item?.marketcap) >= 1 ? `$${formatMarketCap(+item?.marketcap)}` : "< $1" : (+item?.marketcap) >= 1 ? `$${formatEthinDollar(+item?.marketcap, ethPrice)}` : "< $1"}</h5>
                                                             </div>
                                                         </div>
                                                     </Link>
                                                 </>
                                             )
                                         })
-                                    )
-                                        :
+                                    ) :
                                         <div className='no_data_found'>
                                             <svg xmlns="http://www.w3.org/2000/svg" width="71" height="70" viewBox="0 0 71 70" fill="none">
                                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M57.1465 30.2061V27.0112C57.1465 26.141 56.8008 25.3064 56.1854 24.691C55.5701 24.0757 54.7355 23.73 53.8652 23.73H40.0424C39.356 23.73 38.6869 23.9454 38.1293 24.3456C37.5717 24.7459 37.1536 25.3109 36.934 25.9612L36.6223 26.9248H16.6777C15.8075 26.9248 14.9729 27.2705 14.3575 27.8859C13.7422 28.5012 13.3965 29.3358 13.3965 30.2061H57.1465Z" fill="#E59572" />
@@ -353,63 +302,67 @@ const Banner = () => {
                                                 </svg>
                                             </div>
                                         </th>
-                                        <th>    <div className="thdata">
-                                            <p>Age</p>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="6" height="8" viewBox="0 0 6 8" fill="none">
-                                                <path d="M5.41552 4.57129H2.8728H0.583115C0.191298 4.57129 -0.00461033 5.09169 0.272927 5.39675L2.38711 7.72058C2.72586 8.09294 3.27686 8.09294 3.61562 7.72058L4.41966 6.83681L5.72979 5.39675C6.00325 5.09169 5.80734 4.57129 5.41552 4.57129Z" fill="#C3BDBC" />
-                                                <path d="M5.41552 3.42877H2.8728H0.583115C0.191298 3.42877 -0.00461033 2.90838 0.272927 2.60332L2.38711 0.279478C2.72586 -0.0928748 3.27686 -0.0928748 3.61562 0.279478L4.41966 1.16325L5.72979 2.60332C6.00325 2.90838 5.80734 3.42877 5.41552 3.42877Z" fill="#C3BDBC" />
-                                            </svg>
-                                        </div></th>
-                                        <th>    <div className="thdata">
-                                            <p className="marketcap">Market Cap</p>
-                                            <p className="mcap d-none">MCAP</p>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="7" height="8" viewBox="0 0 7 8" fill="none">
-                                                <path d="M5.91552 4.57129H3.3728H1.08312C0.691298 4.57129 0.49539 5.09169 0.772927 5.39675L2.88711 7.72058C3.22586 8.09294 3.77686 8.09294 4.11562 7.72058L4.91966 6.83681L6.22979 5.39675C6.50325 5.09169 6.30734 4.57129 5.91552 4.57129Z" fill="#C3BDBC" />
-                                                <path d="M5.91552 3.42877H3.3728H1.08312C0.691298 3.42877 0.49539 2.90838 0.772927 2.60332L2.88711 0.279478C3.22586 -0.0928748 3.77686 -0.0928748 4.11562 0.279478L4.91966 1.16325L6.22979 2.60332C6.50325 2.90838 6.30734 3.42877 5.91552 3.42877Z" fill="#C3BDBC" />
-                                            </svg>
-                                        </div></th>
-                                        <th>    <div className="thdata">
-                                            <p>Holders</p>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="7" height="8" viewBox="0 0 7 8" fill="none">
-                                                <path d="M5.91559 4.57129H3.37286H1.08318C0.691359 4.57129 0.495451 5.09169 0.772988 5.39675L2.88717 7.72058C3.22593 8.09294 3.77692 8.09294 4.11568 7.72058L4.91972 6.83681L6.22986 5.39675C6.50331 5.09169 6.3074 4.57129 5.91559 4.57129Z" fill="#C3BDBC" />
-                                                <path d="M5.91559 3.42877H3.37286H1.08318C0.691359 3.42877 0.495451 2.90838 0.772988 2.60332L2.88717 0.279478C3.22593 -0.0928748 3.77692 -0.0928748 4.11568 0.279478L4.91972 1.16325L6.22986 2.60332C6.50331 2.90838 6.3074 3.42877 5.91559 3.42877Z" fill="#C3BDBC" />
-                                            </svg>
-                                        </div></th>
+                                        <th>
+                                            <div className="thdata">
+                                                <p>Age</p>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="6" height="8" viewBox="0 0 6 8" fill="none">
+                                                    <path d="M5.41552 4.57129H2.8728H0.583115C0.191298 4.57129 -0.00461033 5.09169 0.272927 5.39675L2.38711 7.72058C2.72586 8.09294 3.27686 8.09294 3.61562 7.72058L4.41966 6.83681L5.72979 5.39675C6.00325 5.09169 5.80734 4.57129 5.41552 4.57129Z" fill="#C3BDBC" />
+                                                    <path d="M5.41552 3.42877H2.8728H0.583115C0.191298 3.42877 -0.00461033 2.90838 0.272927 2.60332L2.38711 0.279478C2.72586 -0.0928748 3.27686 -0.0928748 3.61562 0.279478L4.41966 1.16325L5.72979 2.60332C6.00325 2.90838 5.80734 3.42877 5.41552 3.42877Z" fill="#C3BDBC" />
+                                                </svg>
+                                            </div></th>
+                                        <th>
+                                            <div className="thdata">
+                                                <p className="marketcap">Market Cap</p>
+                                                <p className="mcap d-none">MCAP</p>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="7" height="8" viewBox="0 0 7 8" fill="none">
+                                                    <path d="M5.91552 4.57129H3.3728H1.08312C0.691298 4.57129 0.49539 5.09169 0.772927 5.39675L2.88711 7.72058C3.22586 8.09294 3.77686 8.09294 4.11562 7.72058L4.91966 6.83681L6.22979 5.39675C6.50325 5.09169 6.30734 4.57129 5.91552 4.57129Z" fill="#C3BDBC" />
+                                                    <path d="M5.91552 3.42877H3.3728H1.08312C0.691298 3.42877 0.49539 2.90838 0.772927 2.60332L2.88711 0.279478C3.22586 -0.0928748 3.77686 -0.0928748 4.11562 0.279478L4.91966 1.16325L6.22979 2.60332C6.50325 2.90838 6.30734 3.42877 5.91552 3.42877Z" fill="#C3BDBC" />
+                                                </svg>
+                                            </div>
+                                        </th>
+                                        <th>
+                                            <div className="thdata">
+                                                <p>Holders</p>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="7" height="8" viewBox="0 0 7 8" fill="none">
+                                                    <path d="M5.91559 4.57129H3.37286H1.08318C0.691359 4.57129 0.495451 5.09169 0.772988 5.39675L2.88717 7.72058C3.22593 8.09294 3.77692 8.09294 4.11568 7.72058L4.91972 6.83681L6.22986 5.39675C6.50331 5.09169 6.3074 4.57129 5.91559 4.57129Z" fill="#C3BDBC" />
+                                                    <path d="M5.91559 3.42877H3.37286H1.08318C0.691359 3.42877 0.495451 2.90838 0.772988 2.60332L2.88717 0.279478C3.22593 -0.0928748 3.77692 -0.0928748 4.11568 0.279478L4.91972 1.16325L6.22986 2.60332C6.50331 2.90838 6.3074 3.42877 5.91559 3.42877Z" fill="#C3BDBC" />
+                                                </svg>
+                                            </div>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {
                                         rock && rock?.length > 0 ? (
-                                            rock?.map((item, index) => {
+                                            rock?.map((item: any, index: number) => {
                                                 return (
                                                     <>
                                                         <tr key={index} className={index === 0 && shake ? "shake" : " "}>
                                                             <td className="leftside">
-                                                            {/* `/coin/${item?._id}` */}
+                                                                {/* `/coin/${item?._id}` */}
                                                                 <Link href={''} >
                                                                     <div className="inner_td">
-                                                                        {/* <img className='imgtabbble' src={item.pfp ? item?.pfp : "asset/broken.png"} /> */}
+                                                                        <img className='imgtabbble' src={item.pfp ? item?.pfp : "asset/broken.png"} />
                                                                         <div className='align-headings'>
-                                                                            {/* <h1>{item?.projectName}</h1> */}
-                                                                            {/* <h2>${item?.ticker}</h2> */}
+                                                                            <h1>{item?.projectName}</h1>
+                                                                            <h2>${item?.ticker}</h2>
                                                                         </div>
                                                                     </div></Link>
                                                             </td>
                                                             <td>
-                                                                {/* <h3>{getTimeInAges(item?.createdAt)}</h3> */}
+                                                                <h3>{getTimeInAges(item?.createdAt)}</h3>
                                                             </td>
                                                             <td>
-                                                                {/* <h3> {item?.isGraduated ? (+item?.marketcap) >= 1 ? `$${formatMarketCap(+item?.marketcap)}` : "< $1" : (+item?.marketcap) >= 1 ? `$${formatEthinDollar(+item?.marketcap, ethPrice)}` : "< $1"}</h3> */}
+                                                                <h3> {item?.isGraduated ? (+item?.marketcap) >= 1 ? `$${formatMarketCap(+item?.marketcap)}` : "< $1" : (+item?.marketcap) >= 1 ? `$${formatEthinDollar(+item?.marketcap, ethPrice)}` : "< $1"}</h3>
                                                             </td>
                                                             <td>
-                                                                {/* <h3>{item?.totalHolders >= 0 ? item?.totalHolders : "--"}</h3> */}
+                                                                <h3>{item?.totalHolders >= 0 ? item?.totalHolders : "--"}</h3>
                                                             </td>
                                                         </tr>
                                                     </>
                                                 )
                                             })
-                                        )
-                                            :
+                                        ) :
                                             <tr>
                                                 <td colSpan={4}>
                                                     <div className='table_empty'>
@@ -422,9 +375,6 @@ const Banner = () => {
                                                             <path fill-rule="evenodd" clip-rule="evenodd" d="M34.0903 9.4248H41.413C41.7031 9.4248 41.9813 9.30957 42.1864 9.10445C42.3915 8.89933 42.5067 8.62114 42.5067 8.33105C42.5067 8.04097 42.3915 7.76277 42.1864 7.55766C41.9813 7.35254 41.7031 7.2373 41.413 7.2373H34.0903C33.8003 7.2373 33.5221 7.35254 33.3169 7.55766C33.1118 7.76277 32.9966 8.04097 32.9966 8.33105C32.9966 8.62114 33.1118 8.89933 33.3169 9.10445C33.5221 9.30957 33.8003 9.4248 34.0903 9.4248Z" fill="#E59572" />
                                                         </svg>
                                                         <p className="datafound">No data available at this time!</p>
-
-
-
                                                     </div>
                                                 </td>
                                             </tr>
@@ -432,7 +382,6 @@ const Banner = () => {
                                 </tbody>
                             </Table>
                             <div className="pagination_mains">
-
                                 <div>
                                     <h6>SHOWING {(currentPage - 1) * 10 + 1}-{Math.min(currentPage * 10, totalItems)} OF {totalItems}</h6>
                                 </div>
@@ -443,14 +392,14 @@ const Banner = () => {
                                             <div className='rightsideee'>
                                                 <img
                                                     src="/asset/leftarrow.svg"
-                                                    // onClick={() => handlePageChange(currentPage - 1)}
+                                                    onClick={() => handlePageChange(currentPage - 1)}
                                                     style={{ cursor: 'pointer' }}
                                                     className='imggggggright'
                                                 />
                                             </div>
                                         }
                                         {currentPage > 5 && <Pagination.Ellipsis />}
-                                        {/* {pageItems.slice(Math.max(currentPage - 3, 0), Math.min(currentPage + 2, totalPages - 1)).map((page) => (
+                                        {pageItems.slice(Math.max(currentPage - 3, 0), Math.min(currentPage + 2, totalPages - 1)).map((page) => (
                                             <Pagination.Item
                                                 key={page}
                                                 active={page === +currentPage}
@@ -458,25 +407,24 @@ const Banner = () => {
                                             >
                                                 {page}
                                             </Pagination.Item>
-                                        ))} */}
+                                        ))}
                                         {currentPage < totalPages - 2 && <Pagination.Ellipsis />}
-                                        {/* {totalPages > 1 && (
+                                        {totalPages > 1 && (
                                             <Pagination.Item active={+currentPage === +totalPages} onClick={() => handlePageChange(totalPages)}>
                                                 {totalPages}
                                             </Pagination.Item>
-                                        )} */}
+                                        )}
                                         {
                                             +totalPages != +currentPage &&
                                             <div className='rightsideee'>
-                                                {/* <img
+                                                <img
                                                     src="/asset/rightarrow.svg"
                                                     onClick={() => handlePageChange(currentPage + 1)}
                                                     style={{ cursor: 'pointer' }}
                                                     className='imggggggright'
-                                                /> */}
+                                                />
                                             </div>
                                         }
-
                                     </Pagination>
                                 </div>
 
@@ -485,7 +433,6 @@ const Banner = () => {
                     </div>
                 </div>
             </section>
-
         </>
     );
 };
