@@ -1,0 +1,255 @@
+.navbarlight_top {
+    padding: 25px 70px;
+    position: absolute;
+    // background: #E8E4DD;
+    top: 0px;
+    z-index: 999;
+    width: 100%;
+
+    .h1,
+    .htag a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .active-link h1 {
+        color: #311E1A;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 120%;
+        /* 16.8px */
+    }
+
+    .htag a h1 {
+        color: #311E1A;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 300;
+        line-height: 120%;
+        /* 16.8px */
+    }
+
+
+
+    .rockslogo {
+        cursor: pointer;
+    }
+
+    .navbar_main {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        h1 {
+            color: #FFF3E2;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 300;
+            cursor: pointer;
+            line-height: 120%;
+            /* 16.8px */
+        }
+
+        .htag {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-left: 100px;
+        }
+
+        .buttons_div {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            .Launch {
+                color: #311E1A;
+                text-align: center;
+                font-size: 12px;
+                font-style: normal;
+                font-weight: 400;
+                line-height: 100%;
+                /* 12px */
+                padding: 16px;
+                border-radius: 10px;
+                background: #E59572;
+                border: unset;
+            }
+
+            .Launch:hover {
+                background: #FFA37A;
+
+            }
+
+            .Connect {
+                color: #311E1A;
+                font-size: 12px;
+                font-style: normal;
+                font-weight: 400;
+                line-height: 100%;
+                /* 12px */
+                padding: 16px;
+                border-radius: 10px;
+                background: #F4D6AE;
+                border: unset;
+            }
+
+            .Connect:hover {
+                background: #F5CA91;
+
+            }
+
+            .dis-Connect {
+                color: #FF3235;
+                font-size: 12px;
+                font-style: normal;
+                font-weight: 400;
+                line-height: 12px;
+                /* 12px */
+                padding: 16px;
+                border-radius: 10px;
+                border:1px solid #FF3235;
+                background: unset;
+            }
+        }
+    }
+}
+.active-link h1 {
+    color: #311E1A;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400 !important;
+    line-height: 120%; /* 16.8px */
+  }
+.phonenavbar {
+    background-color: unset;
+    position: absolute;
+    top: 0px;
+    z-index: 999;
+    width: 100%;
+
+    .top_sidee {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 25px 0px;
+        width: 100%;
+    }
+}
+
+.offcanvassnav {
+    // height: 100vh;
+    width: 100%;
+    background: #EEEAE3;
+    border: unset;
+
+    .offcanvas-body {
+        // position: relative;
+        padding: 0px;
+
+        h1 {
+            color: #311E1A;
+            padding: 19px 20px;
+            border-bottom: 1px solid #E0D7D5;
+            font-feature-settings: 'dlig' on, 'salt' on;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 300;
+            line-height: 100%;
+            /* 14px */
+        }
+
+        h2 {
+            color: #311E1A;
+            padding: 19px 20px;
+            font-feature-settings: 'dlig' on, 'salt' on;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 300;
+            line-height: 100%;
+            /* 14px */
+        }
+    }
+
+    .offcanvas-header .btn-close {
+        display: none;
+
+    }
+
+    .croosss {
+        position: absolute;
+        right: 20px;
+        top: 25px;
+    }
+
+    .buttons_div {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+        position: absolute;
+        bottom: 20px;
+        padding: 0px 20px;
+
+        .Launch {
+            color: #311E1A;
+            text-align: center;
+            width: 100%;
+            padding: 16px;
+            border-radius: 10px;
+            background: #E59572;
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 100%;
+            /* 12px */
+            border: unset;
+        }
+
+        .Launch:hover {
+            background: #FFA37A;
+
+        }
+
+        a {
+            width: 100%;
+        }
+
+        .Connect {
+            color: #311E1A;
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 100%;
+            /* 12px */
+            padding: 16px;
+            border-radius: 10px;
+            background: #F4D6AE;
+            width: 100%;
+            border: unset;
+        }
+
+        .Connect:hover {
+            background: #F5CA91;
+
+        }
+    }
+}
+
+@media(max-width:600px) {
+    .navbar_top {
+        display: none;
+    }
+}
+
+@media(max-width:991px) {
+    .phonenavbar {
+        display: block !important;
+    }
+
+    .navbarlight_top {
+        display: none;
+    }
+}
