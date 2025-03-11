@@ -1,26 +1,30 @@
 "use client";
+
 import React, { useEffect, useState } from 'react'
 import Dropdown from 'react-bootstrap/Dropdown';
 import Pagination from 'react-bootstrap/Pagination';
 import Navbar from '../components/Landingpage/navbar';
 import Footer from '../components/Footer';
 import Offcanvas from 'react-bootstrap/Offcanvas';
+import { useSocketEvents } from '../sockets';
+import { useQuery } from '@tanstack/react-query';
+import { ethToDollarConverter, getAllRocksFiltered } from '../services';
+import { formatEthinDollar, formatMarketCap, getTimeInAges } from '../helpers';
+import Link from 'next/link';
 
 const page = () => {
-    const token = localStorage?.getItem("accessToken")
     const [loader, setLoader] = useState(false);
     const [search, setSearch] = useState("");
     const [sortBy, setSortBy] = useState("createdAt");
     const [sortShow, setSortShow] = useState("New to Old");
     const [sortDis, setSortDis] = useState("desc");
     const [show, setShow] = useState(false);
-    const [rock, setRock] = useState([]);
+    const [rock, setRock] = useState<any>([]);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);  // This will be updated based on API response
     const [totalItems, setTotalItems] = useState(0);
-    const [ethPrice, setEthPrice] = useState(0);
     const socketEvent = `NewProject`
     const [shake, setShake] = useState(false);
     const [debouncedSearch, setDebouncedSearch] = useState(search);
@@ -33,21 +37,21 @@ const page = () => {
     }, [search]);
 
 
-    // const events = [
-    //     {
-    //         eventName: socketEvent,
-    //         handler: (data) => {
-    //             if (data !== null) {
-    //                 setRock([data, ...rock])
-    //                 setShake(true);
-    //                 setTimeout(() => {
-    //                     setShake(false);
-    //                 }, 1500);
-    //             }
-    //         },
-    //     }
-    // ];
-    // useSocketEvents(events);
+    const events = [
+        {
+            eventName: socketEvent,
+            handler: (data: any) => {
+                if (data !== null) {
+                    setRock([data, ...rock])
+                    setShake(true);
+                    setTimeout(() => {
+                        setShake(false);
+                    }, 1500);
+                }
+            },
+        }
+    ];
+    useSocketEvents(events);
 
     const handlePageChange = (page: any) => {
         if (page >= 1 && page <= totalPages) {
@@ -60,38 +64,36 @@ const page = () => {
         pageItems.push(i);  // Create an array of page numbers
     }
 
+    const { data: ethPrice } = useQuery({
+        queryKey: ["ethPrice"],
+        queryFn: async () => ethToDollarConverter(),
+    });
+
+    const { data: allRocksData, isLoading } = useQuery({
+        queryKey: ["projectAllRocksData", currentPage, debouncedSearch, sortBy, sortDis],
+        queryFn: async () => getAllRocksFiltered(currentPage, debouncedSearch, sortBy, sortDis),
+    });
+
     const getRocks = async () => {
-        // if (!search) {
-        //     setLoader(true);
-        // }
-        // try {
-        //     const { data } = await axios.get(`${api_url}project/get-all-projects-filtered?limit=12&page=${currentPage}&searchParam=${search}&sortBy=${sortBy}&sortDirection=${sortDis}`,);
-        //     setRock(data?.data?.projects);
-        //     setTotalPages(data?.data?.totalPages); // Assuming has totalPages
-        //     setTotalItems(data?.data?.total);
-        //     setLoader(false);
-        // } catch (error) {
-        //     // console.error("Error fetching gift collections:", error);
-        //     setLoader(false);
-        // }
+        if (!search) {
+            setLoader(true);
+        }
+        try {
+            setRock(allRocksData?.projects);
+            setTotalPages(allRocksData?.totalPages); // Assuming has totalPages
+            setTotalItems(allRocksData?.total);
+            setLoader(false);
+        } catch (error) {
+            setLoader(false);
+        }
     };
     useEffect(() => {
         getRocks()
-    }, [currentPage, debouncedSearch, sortBy, sortDis]);
-
-    const fetchEthValue = async () => {
-        // const ethAmount = await ethToDollarConverter();
-        // setEthPrice(ethAmount);
-    };
-
-    useEffect(() => {
-        window?.scroll(0, 0)
-        fetchEthValue()
-    }, []);
+    }, [allRocksData]);
 
     return (
         <>
-            {/* {loader && <Loader />} */}
+            {/* {isLoading && <Loader />} */}
             <Navbar />
             <section className='Main_Rock'>
                 <div className="custom-container">
@@ -155,13 +157,13 @@ const page = () => {
                                 <path d="M4 6L8 10L12 6" stroke="#311E1A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                             </svg></button>
                         </div>
-                        {/* <div className='cards_section'>
+                        <div className='cards_section'>
                             {
                                 rock && rock?.length > 0 ? (
-                                    rock?.map((item, index) => {
+                                    rock?.map((item: any, index: number) => {
                                         return (
                                             <>
-                                                <Link to={`/coin/${item?._id}`} >
+                                                <Link href={`/coin/${item?._id}`} >
                                                     <div key={index} className={index === 0 && shake ? "card_one shake" : "card_one"}>
                                                         <div className='img_text'>
                                                             <img src={item.pfp ? item?.pfp : "asset/broken.png"} className='angryimg' />
@@ -193,7 +195,7 @@ const page = () => {
                                     <p>No Data Found!</p>
                             }
 
-                        </div> */}
+                        </div>
                         {totalPages > 1 &&
                             <div className="pagination_mains">
                                 <div>

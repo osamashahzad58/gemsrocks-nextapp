@@ -7,6 +7,7 @@ const getAllProjectsRoute = `${api_url}project/get-all-projects?limit=12&page=`
 const getAllTopGainersRoute = `${api_url}project/get-top-gainer-projects`
 const getDashboardDataRoute = `${api_url}dashboards/get-dashboard-data`
 const getKingOfTheDesertRoute = `${api_url}project/get-king-of-the-desert-project`
+const getAllRocksRoute = `${api_url}project/get-all-projects-filtered?limit=12&page=`
 
 export const ethToDollarConverter = async () => {
     try {
@@ -73,5 +74,14 @@ export const getKingOfTheDesert = async () => {
         return data?.data
     } catch (error) {
         console.error("Error fetching:", error);
+    }
+}
+
+export const getAllRocksFiltered = async (currentPage: number, search: string, sortBy: string, sortDis: string) => {
+    try {
+        const { data } = await axios.get(`${getAllRocksRoute}${currentPage}&searchParam=${search}&sortBy=${sortBy}&sortDirection=${sortDis}`);
+        return data?.data
+    } catch (error) {
+        console.error("Error fetching:", error);      
     }
 }
