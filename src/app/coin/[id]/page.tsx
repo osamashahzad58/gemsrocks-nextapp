@@ -1,12 +1,15 @@
 "use client"
 
+import Footer from '@/app/components/Footer';
 import Navbar from '@/app/components/Landingpage/navbar';
 import TradingViewChart from '@/app/components/TradingviewChart';
 import { formatEthinDollar, formatMarketCap, getFormatedWeb3Address, handleShare } from '@/app/helpers';
 import { ethToDollarConverter } from '@/app/services';
 import socket, { useSocketEvents } from '@/app/sockets';
+import moment from 'moment';
 import { useParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
+import { Dropdown, Modal, Offcanvas, ProgressBar, Spinner } from 'react-bootstrap';
 import { toast } from "react-toastify";
 
 const page = () => {
@@ -28,6 +31,8 @@ const page = () => {
     const [updateId, setUpdateId] = useState("");
     const [deleteId, setDeleteId] = useState("");
     const [listComment, setListComment] = useState<any>("");
+    console.log(listComment, "listComment......");
+
     const [detail, setDetail] = useState<any>(null);
     const [lastTime, setLastTime] = useState(null);
     const [commentDisable, setCommentDisable] = useState(false);
@@ -71,6 +76,8 @@ const page = () => {
         {
             eventName: socketEvent,
             handler: (data: any) => {
+                console.log(data, "datadatadatadatadata");
+
                 if (data !== null) {
                     let mc = Number(data?.marketCap);
                     const currentPrice = Number(data?.price)
@@ -960,7 +967,12 @@ const page = () => {
                                             height="400"
                                             src={iframeSrc}>
                                         </iframe>
-                                        : <TradingViewChart initialData={initialData} liveData={liveData} />}
+                                        :
+                                        <>
+                                            TradingViewChart
+                                            {/* <TradingViewChart initialData={initialData} liveData={liveData} /> */}
+                                        </>
+                                    }
                                 </div>
                             </div>
                             {detail?.projectDescription || checkLinks ?
@@ -1003,61 +1015,66 @@ const page = () => {
                                             <div className="tab-pane fade show active mydatttta" id="v-pills-homenew" role="tabpanel" aria-labelledby="v-pills-homenew-tab">
                                                 <div className='bottom_left'>
                                                     <h1>Forum Chat</h1>
-                                                    <textarea id="w3review" maxLength="300" name="w3review" rows="4" cols="50" placeholder='Type your comment' value={postComment} onChange={(e) => setPostComment(e.target.value)} />
+                                                    <textarea id="w3review" maxLength={300} name="w3review" rows={4} cols={50} placeholder='Type your comment' value={postComment} onChange={(e) => setPostComment(e.target.value)} />
                                                     <div className='textarea_div'>
                                                         <p>{postComment?.length}/300 Characters</p>
-                                                        <button disabled={commentDisable} onClick={postingComment}> {commentDisable ? <Spinner size={25} /> :
+                                                        <button disabled={commentDisable}> {commentDisable ? <Spinner size="sm" /> :
                                                             "Post"}</button>
                                                     </div>
-                                                    {
+                                                    {/* {
                                                         listComment && listComment?.length > 0 ? (
                                                             listComment?.map((item, index) => {
-                                                                const userLike = item?.likes?.find(like => like.userId === userId);
-                                                                const isLiked = userLike ? userLike.isLiked : false;
-                                                                const likeCount = item?.likes?.filter(like => like.isLiked).length;
-                                                                return (
-                                                                    <>
-                                                                        <div key={index}>
-                                                                            <div className='top_sidebarr new_area'>
-                                                                                <div className='bottom_area '>
-                                                                                    <div className='smallimg_div'>
-                                                                                        <img src={item?.userId?.pfp} />
-                                                                                        <h3>{item?.walletAddress?.slice(0, 5)}...{item?.walletAddress?.slice(-3)}</h3>
-                                                                                    </div>
-                                                                                    <p>{moment(item.createdAt).format('DD/MM/YYYY h:mm A')}</p>
-                                                                                    {likeCount > 0 && <p>{likeCount}</p>}
-                                                                                    <LikeButton itemId={item?._id} isLiked={isLiked} setLikeData={setLikeData} />
+                                                                // const userLike = item?.likes?.find(like => like.userId === userId);
+                                                                // const isLiked = userLike ? userLike.isLiked : false;
+                                                                // const likeCount = item?.likes?.filter(like => like.isLiked).length;
+                                                                return ( */}
+                                                    <>
+                                                        <div>
+                                                            <div className='top_sidebarr new_area'>
+                                                                <div className='bottom_area '>
+                                                                    <div className='smallimg_div'>
+                                                                        {/* <img src={item?.userId?.pfp} /> */}
+                                                                        {/* <h3>{item?.walletAddress?.slice(0, 5)}...{item?.walletAddress?.slice(-3)}</h3> */}
+                                                                    </div>
+                                                                    <p>
+                                                                        {/* {moment(item.createdAt).format('DD/MM/YYYY h:mm A')} */}
+                                                                    </p>
+                                                                    {/* {likeCount > 0 && <p>{likeCount}</p>} */}
+                                                                    {/* <LikeButton itemId={item?._id} isLiked={isLiked} setLikeData={setLikeData} /> */}
+                                                                    LikeButton
+                                                                </div>
+                                                                {/* {item?.walletAddress?.toLowerCase() === account?.toLowerCase() && ( */}
+                                                                <div className='del_edit'>
+                                                                    <img
+                                                                        // onClick={() => handleShow112(item?.comment, item?.walletAddress, item?._id)}
+                                                                        src='/asset/edittt.svg'
+                                                                        alt="Edit"
+                                                                    />
+                                                                    <img
+                                                                        // onClick={() => handleShow12(item?._id)}
+                                                                        src='/asset/dell.svg'
+                                                                        alt="Delete"
+                                                                    />
+                                                                </div>
+                                                                {/* )} */}
+                                                            </div>
 
-                                                                                </div>
-                                                                                {item?.walletAddress?.toLowerCase() === account?.toLowerCase() && (
-                                                                                    <div className='del_edit'>
-                                                                                        <img
-                                                                                            onClick={() => handleShow112(item?.comment, item?.walletAddress, item?._id)}
-                                                                                            src='/asset/edittt.svg'
-                                                                                            alt="Edit"
-                                                                                        />
-                                                                                        <img
-                                                                                            onClick={() => handleShow12(item?._id)}
-                                                                                            src='/asset/dell.svg'
-                                                                                            alt="Delete"
-                                                                                        />
-                                                                                    </div>
-                                                                                )}
-                                                                            </div>
-
-                                                                            <h5>{item?.comment}</h5></div>
-                                                                    </>
-                                                                )
+                                                            <h5> item
+                                                                {/* {item?.comment} */}
+                                                            </h5></div>
+                                                    </>
+                                                    {/* )
                                                             })
                                                         )
                                                             :
                                                             <p>No Comments Found!</p>
-                                                    }
+                                                    } */}
                                                 </div>
                                             </div>
                                             {detail &&
-                                                <div class="tab-pane fade" id="v-pills-profilenew" role="tabpanel" aria-labelledby="v-pills-profilenew-tab">
-                                                    <Transactiontable ticker={detail?.ticker} contractAddress={detail?.contractAddress} />
+                                                <div className="tab-pane fade" id="v-pills-profilenew" role="tabpanel" aria-labelledby="v-pills-profilenew-tab">
+                                                    Transactiontable
+                                                    {/* <Transactiontable ticker={detail?.ticker} contractAddress={detail?.contractAddress} /> */}
                                                 </div>
                                             }
                                         </div>
@@ -1071,20 +1088,20 @@ const page = () => {
                         </div>
                         <div className='right_side'>
                             <div className='tabs_div'>
-                                <div class="d-flex align-items-start sellbuy_tab">
+                                <div className="d-flex align-items-start sellbuy_tab">
                                     <div className='tabbbs_data '>
-                                        <div class="nav  nav-pills me-3 tabbss_div" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                                            <button class="nav-link active" id="v-pills-home-tab" data-bs-toggle="pill" data-bs-target="#v-pills-home" type="button" role="tab" aria-controls="v-pills-home" aria-selected="true">Buy</button>
-                                            <button class="nav-link" id="v-pills-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profile" type="button" role="tab" aria-controls="v-pills-profile" aria-selected="false">Sell</button>
+                                        <div className="nav  nav-pills me-3 tabbss_div" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                            <button className="nav-link active" id="v-pills-home-tab" data-bs-toggle="pill" data-bs-target="#v-pills-home" type="button" role="tab" aria-controls="v-pills-home" aria-selected="true">Buy</button>
+                                            <button className="nav-link" id="v-pills-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profile" type="button" role="tab" aria-controls="v-pills-profile" aria-selected="false">Sell</button>
                                         </div>
                                     </div>
                                     <div className='tabs__lower'>
-                                        <div class="tab-content" id="v-pills-tabContent">
-                                            <div class="tab-pane fade show active mydatttta" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">
+                                        <div className="tab-content" id="v-pills-tabContent">
+                                            <div className="tab-pane fade show active mydatttta" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">
                                                 <div className='tab_buy'>
                                                     <div className='balance_div'>
                                                         <p>Balance</p>
-                                                        <h1>{(+ethBalance)?.toFixed(6)} ETH</h1>
+                                                        {/* <h1>{(+ethBalance)?.toFixed(6)} ETH</h1> */}
                                                     </div>
                                                     <div className='gemsdiv'>
                                                         <div>
@@ -1112,11 +1129,11 @@ const page = () => {
                                                     <h5 className='youget_text'>You Get<span className='dashes'> {rockGet ? parseFloat(rockGet)?.toFixed(2) : "--"}</span></h5>
 
                                                     <button
-                                                        className={+tradeAmount == 0 || +ethBalance < +tradeAmount ? "disabled" : ""}
-                                                        onClick={() => {
-                                                            handleBuyTrade()
-                                                        }}
-                                                        disabled={+tradeAmount == 0 || +ethBalance < +tradeAmount}
+                                                    // className={+tradeAmount == 0 || +ethBalance < +tradeAmount ? "disabled" : ""}
+                                                    // onClick={() => {
+                                                    //     handleBuyTrade()
+                                                    // }}
+                                                    // disabled={+tradeAmount == 0 || +ethBalance < +tradeAmount}
                                                     >
                                                         {
                                                             isTransactionOcurring ? (
@@ -1135,7 +1152,7 @@ const page = () => {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="tab-pane fade" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
+                                            <div className="tab-pane fade" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
                                                 <div className='tab_buy'>
                                                     <div className='balance_div'>
                                                         <p>Balance</p>
@@ -1150,10 +1167,10 @@ const page = () => {
                                                         <h4>{detail?.ticker}</h4>
                                                     </div>
                                                     <div className='gems_inner'>
-                                                        <h5 onClick={() => setSellAmount(Math.floor(rockBalance * 0.25).toString())}>25%</h5>
+                                                        {/* <h5 onClick={() => setSellAmount(Math.floor(rockBalance * 0.25).toString())}>25%</h5>
                                                         <h5 onClick={() => setSellAmount(Math.floor(rockBalance * 0.50).toString())}>50%</h5>
                                                         <h5 onClick={() => setSellAmount(Math.floor(rockBalance * 0.75).toString())}>75%</h5>
-                                                        <h5 onClick={() => setSellAmount(Math.floor(rockBalance * 1.00).toString())}>100%</h5>
+                                                        <h5 onClick={() => setSellAmount(Math.floor(rockBalance * 1.00).toString())}>100%</h5> */}
 
                                                     </div>
                                                     <h5 className='youget_text'>You Get<span className='dashes'>{gemGet ? (parseFloat(gemGet) * 0.99)?.toFixed(6) : "--"}</span></h5>
@@ -1235,7 +1252,7 @@ const page = () => {
                                                 <>
                                                     <div className='holder_bottom'>
                                                         <h3>{index + 1}.</h3>
-                                                        <h4>{item?.address?.slice(0, 6)}{item?.address?.toLowerCase() === detail?.creatorAddress?.toLowerCase() && " 🤵‍♂️ (dev)"}{item?.address?.toLowerCase() === bondingCurveWallet?.toLowerCase() && " 🏦 (bonding curve)"}<span>{item?.percentage}</span></h4>
+                                                        {/* <h4>{item?.address?.slice(0, 6)}{item?.address?.toLowerCase() === detail?.creatorAddress?.toLowerCase() && " 🤵‍♂️ (dev)"}{item?.address?.toLowerCase() === bondingCurveWallet?.toLowerCase() && " 🏦 (bonding curve)"}<span>{item?.percentage}</span></h4> */}
                                                     </div>
                                                 </>
                                             )
@@ -1352,39 +1369,44 @@ const page = () => {
                                         height="400"
                                         src={iframeSrc}>
                                     </iframe>
-                                    : <TradingViewChart initialData={initialData} liveData={liveData} />}
+                                    :
+                                    <>
+                                        TradingViewChart
+                                        {/* <TradingViewChart initialData={initialData} liveData={liveData} /> */}
+                                    </>
+                                }
                             </div>
                         </div>
                         <div className='trade_charttabs'>
-                            <div class="d-flex align-items-start sellbuy_tab2">
+                            <div className="d-flex align-items-start sellbuy_tab2">
                                 <div className='tabbbs_data '>
-                                    <div class="nav  nav-pills me-3 tabbss_div2" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                                        <button class="nav-link active" id="v-pills-Trade-tab" data-bs-toggle="pill" data-bs-target="#v-pills-Trade" type="button" role="tab" aria-controls="v-pills-Trade" aria-selected="true">Trade</button>
-                                        <button class="nav-link" id="v-pills-Info-tab" data-bs-toggle="pill" data-bs-target="#v-pills-Info" type="button" role="tab" aria-controls="v-pills-Info" aria-selected="false">Info</button>
-                                        <button class="nav-link" id="v-pills-Thread-tab" data-bs-toggle="pill" data-bs-target="#v-pills-Thread" type="button" role="tab" aria-controls="v-pills-Thread" aria-selected="false">Thread</button>
-                                        <button class="nav-link" id="v-pills-Threadnew-tab" data-bs-toggle="pill" data-bs-target="#v-pills-Threadnew" type="button" role="tab" aria-controls="v-pills-Threadnew" aria-selected="false">Transactions</button>
+                                    <div className="nav  nav-pills me-3 tabbss_div2" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                        <button className="nav-link active" id="v-pills-Trade-tab" data-bs-toggle="pill" data-bs-target="#v-pills-Trade" type="button" role="tab" aria-controls="v-pills-Trade" aria-selected="true">Trade</button>
+                                        <button className="nav-link" id="v-pills-Info-tab" data-bs-toggle="pill" data-bs-target="#v-pills-Info" type="button" role="tab" aria-controls="v-pills-Info" aria-selected="false">Info</button>
+                                        <button className="nav-link" id="v-pills-Thread-tab" data-bs-toggle="pill" data-bs-target="#v-pills-Thread" type="button" role="tab" aria-controls="v-pills-Thread" aria-selected="false">Thread</button>
+                                        <button className="nav-link" id="v-pills-Threadnew-tab" data-bs-toggle="pill" data-bs-target="#v-pills-Threadnew" type="button" role="tab" aria-controls="v-pills-Threadnew" aria-selected="false">Transactions</button>
 
                                     </div>
                                 </div>
                                 <div className='tabs__lower'>
-                                    <div class="tab-content" id="v-pills-tabContent">
-                                        <div class="tab-pane fade show active mydatttta" id="v-pills-Trade" role="tabpanel" aria-labelledby="v-pills-Trade-tab">
+                                    <div className="tab-content" id="v-pills-tabContent">
+                                        <div className="tab-pane fade show active mydatttta" id="v-pills-Trade" role="tabpanel" aria-labelledby="v-pills-Trade-tab">
                                             <div className='right_side'>
                                                 <div className='tabs_div'>
-                                                    <div class="d-flex align-items-start sellbuy_tab">
+                                                    <div className="d-flex align-items-start sellbuy_tab">
                                                         <div className='tabbbs_data '>
-                                                            <div class="nav  nav-pills me-3 tabbss_div" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                                                                <button class="nav-link active" id="v-pills-homesmall-tab" data-bs-toggle="pill" data-bs-target="#v-pills-homesmall" type="button" role="tab" aria-controls="v-pills-homesmall" aria-selected="true">Buy</button>
-                                                                <button class="nav-link" id="v-pills-profilesmall-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profilesmall" type="button" role="tab" aria-controls="v-pills-profile" aria-selected="false">Sell</button>
+                                                            <div className="nav  nav-pills me-3 tabbss_div" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                                                <button className="nav-link active" id="v-pills-homesmall-tab" data-bs-toggle="pill" data-bs-target="#v-pills-homesmall" type="button" role="tab" aria-controls="v-pills-homesmall" aria-selected="true">Buy</button>
+                                                                <button className="nav-link" id="v-pills-profilesmall-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profilesmall" type="button" role="tab" aria-controls="v-pills-profile" aria-selected="false">Sell</button>
                                                             </div>
                                                         </div>
                                                         <div className='tabs__lower'>
-                                                            <div class="tab-content" id="v-pills-tabContent">
-                                                                <div class="tab-pane fade show active mydatttta" id="v-pills-homesmall" role="tabpanel" aria-labelledby="v-pills-homesmall-tab">
+                                                            <div className="tab-content" id="v-pills-tabContent">
+                                                                <div className="tab-pane fade show active mydatttta" id="v-pills-homesmall" role="tabpanel" aria-labelledby="v-pills-homesmall-tab">
                                                                     <div className='tab_buy'>
                                                                         <div className='balance_div'>
                                                                             <p>Balance</p>
-                                                                            <h1>{(+ethBalance)?.toFixed(6)} ETH</h1>
+                                                                            {/* <h1>{(+ethBalance)?.toFixed(6)} ETH</h1> */}
                                                                         </div>
                                                                         <div className='gemsdiv'>
                                                                             <div>
@@ -1412,11 +1434,11 @@ const page = () => {
                                                                         </div>
                                                                         <h5 className='youget_text'>You Get<span className='dashes'>{rockGet ? parseFloat(rockGet)?.toFixed(2) : "--"}</span></h5>
                                                                         <button
-                                                                            className={tradeAmount == 0 || +ethBalance < +tradeAmount ? "disabled" : ""}
-                                                                            onClick={() => {
-                                                                                handleBuyTrade();
-                                                                            }}
-                                                                            disabled={tradeAmount == 0 || +ethBalance < +tradeAmount}
+                                                                        // className={tradeAmount == 0 || +ethBalance < +tradeAmount ? "disabled" : ""}
+                                                                        // onClick={() => {
+                                                                        //     handleBuyTrade();
+                                                                        // }}
+                                                                        // disabled={tradeAmount == 0 || +ethBalance < +tradeAmount}
                                                                         >
                                                                             {
                                                                                 isTransactionOcurring ? (
@@ -1435,7 +1457,7 @@ const page = () => {
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <div class="tab-pane fade" id="v-pills-profilesmall" role="tabpanel" aria-labelledby="v-pills-profilesmall-tab">
+                                                                <div className="tab-pane fade" id="v-pills-profilesmall" role="tabpanel" aria-labelledby="v-pills-profilesmall-tab">
                                                                     <div className='tab_buy'>
                                                                         <div className='balance_div'>
                                                                             <p>Balance</p>
@@ -1450,10 +1472,10 @@ const page = () => {
                                                                             <h4>{detail?.ticker}</h4>
                                                                         </div>
                                                                         <div className='gems_inner'>
-                                                                            <h5 onClick={() => setSellAmount(Math.floor(rockBalance * 0.25).toString())}>25%</h5>
+                                                                            {/* <h5 onClick={() => setSellAmount(Math.floor(rockBalance * 0.25).toString())}>25%</h5>
                                                                             <h5 onClick={() => setSellAmount(Math.floor(rockBalance * 0.50).toString())}>50%</h5>
                                                                             <h5 onClick={() => setSellAmount(Math.floor(rockBalance * 0.75).toString())}>75%</h5>
-                                                                            <h5 onClick={() => setSellAmount(Math.floor(rockBalance * 1.00).toString())}>100%</h5>
+                                                                            <h5 onClick={() => setSellAmount(Math.floor(rockBalance * 1.00).toString())}>100%</h5> */}
 
                                                                         </div>
                                                                         <h5 className='youget_text'>You Get<span className='dashes'>{gemGet ? (parseFloat(gemGet) * 0.99)?.toFixed(6) : "--"}</span></h5>
@@ -1644,7 +1666,7 @@ const page = () => {
                                                                     <>
                                                                         <div className='holder_bottom'>
                                                                             <h3>{index + 1}.</h3>
-                                                                            <h4>{item?.address?.slice(0, 6)}{item?.address?.toLowerCase() === detail?.creatorAddress?.toLowerCase() && " 🤵‍♂️ (dev)"}{item?.address?.toLowerCase() === bondingCurveWallet?.toLowerCase() && " 🏦 (bonding curve)"}<span>{item?.percentage}</span></h4>
+                                                                            {/* <h4>{item?.address?.slice(0, 6)}{item?.address?.toLowerCase() === detail?.creatorAddress?.toLowerCase() && " 🤵‍♂️ (dev)"}{item?.address?.toLowerCase() === bondingCurveWallet?.toLowerCase() && " 🏦 (bonding curve)"}<span>{item?.percentage}</span></h4> */}
                                                                         </div>
                                                                     </>
                                                                 )
@@ -1657,7 +1679,7 @@ const page = () => {
                                             </div>
                                         </div>
                                         {detail?.projectDescription || checkLinks ?
-                                            <div class="tab-pane fade" id="v-pills-Info" role="tabpanel" aria-labelledby="v-pills-Info-tab">
+                                            <div className="tab-pane fade" id="v-pills-Info" role="tabpanel" aria-labelledby="v-pills-Info-tab">
                                                 <div className='midddle_left'>
                                                     {checkLinks ?
                                                         <div className='new_links'>
@@ -1689,73 +1711,80 @@ const page = () => {
                                                         <p>{detail?.projectDescription}</p></> : ""}
                                                 </div>
                                             </div> : ""}
-                                        <div class="tab-pane fade" id="v-pills-Thread" role="tabpanel" aria-labelledby="v-pills-Thread-tab">
+                                        <div className="tab-pane fade" id="v-pills-Thread" role="tabpanel" aria-labelledby="v-pills-Thread-tab">
                                             <div className='bottom_left'>
                                                 <h1>Forum Chat</h1>
-                                                <textarea id="w3review" name="w3review" maxLength="300" rows="4" cols="50" placeholder='Type your comment' value={postComment} onChange={(e) => setPostComment(e.target.value)} />
+                                                <textarea id="w3review" name="w3review" maxLength={300} rows={4} cols={50} placeholder='Type your comment' value={postComment} onChange={(e) => setPostComment(e.target.value)} />
                                                 <div className='textarea_div'>
                                                     <p>{postComment?.length}/300 Characters</p>
-                                                    <button disabled={commentDisable} onClick={postingComment}> {commentDisable ? <Spinner size={25} /> :
+                                                    <button disabled={commentDisable}> {commentDisable ? <Spinner size="sm" /> :
                                                         "Post"}</button>
                                                 </div>
-                                                {
+                                                {/* {
                                                     listComment && listComment?.length > 0 ? (
                                                         listComment?.map((item, index) => {
-                                                            const userLike = item?.likes?.find(like => like.userId === userId);
-                                                            const isLiked = userLike ? userLike.isLiked : false;
-                                                            const likeCount = item?.likes?.filter(like => like.isLiked).length;
-                                                            return (
-                                                                <>
-                                                                    <div key={index}>
-                                                                        <div className='top_sidebarr new_area'>
-                                                                            <div className='bottom_area '>
-                                                                                <div className='smallimg_div'>
-                                                                                    <img src={item?.userId?.pfp} />
-                                                                                    <h3>{item?.walletAddress?.slice(0, 5)}...{item?.walletAddress?.slice(-3)}</h3>
-                                                                                </div>
-                                                                                <p>{moment(item.createdAt).format('DD/MM/YYYY h:mm A')}</p>
-                                                                                {/* <h4><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                                            // const userLike = item?.likes?.find(like => like.userId === userId);
+                                                            // const isLiked = userLike ? userLike.isLiked : false;
+                                                            // const likeCount = item?.likes?.filter(like => like.isLiked).length;
+                                                            return ( */}
+                                                <>
+                                                    <div>
+                                                        <div className='top_sidebarr new_area'>
+                                                            <div className='bottom_area '>
+                                                                <div className='smallimg_div'>
+                                                                    {/* <img src={item?.userId?.pfp} /> */}
+                                                                    {/* <h3>{item?.walletAddress?.slice(0, 5)}...{item?.walletAddress?.slice(-3)}</h3> */}
+                                                                </div>
+                                                                {/* <p>{moment(item.createdAt).format('DD/MM/YYYY h:mm A')}</p> */}
+                                                                {/* <h4><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
                                                                                     <path d="M4.5 8.5L2 6L4.5 3.5" stroke="#E59572" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                                                                                     <path d="M10 9V8C10 7.46957 9.78929 6.96086 9.41421 6.58579C9.03914 6.21071 8.53043 6 8 6H2" stroke="#E59572" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                                                                                 </svg>Reply</h4> */}
-                                                                                {/* <img className='thumbbb' src='\asset\thumb.svg' /> */}
-                                                                                {likeCount > 0 && <p>{likeCount}</p>}
-                                                                                <LikeButton itemId={item?._id} isLiked={isLiked} setLikeData={setLikeData} />
+                                                                {/* <img className='thumbbb' src='\asset\thumb.svg' /> */}
+                                                                {/* {likeCount > 0 && <p>{likeCount}</p>} */}
+                                                                {/* <LikeButton itemId={item?._id} isLiked={isLiked} setLikeData={setLikeData} /> */}
+                                                                LikeButton
+                                                            </div>
+                                                            {/* {item?.walletAddress?.toLowerCase() === account?.toLowerCase() && ( */}
+                                                            <div className='drop_phonee'>
+                                                                <Dropdown>
+                                                                    <Dropdown.Toggle variant="success" id="dropdown-basic">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                                                            <path d="M6 6.5C6.27614 6.5 6.5 6.27614 6.5 6C6.5 5.72386 6.27614 5.5 6 5.5C5.72386 5.5 5.5 5.72386 5.5 6C5.5 6.27614 5.72386 6.5 6 6.5Z" stroke="#E59572" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                                                            <path d="M6 3C6.27614 3 6.5 2.77614 6.5 2.5C6.5 2.22386 6.27614 2 6 2C5.72386 2 5.5 2.22386 5.5 2.5C5.5 2.77614 5.72386 3 6 3Z" stroke="#E59572" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                                                            <path d="M6 10C6.27614 10 6.5 9.77614 6.5 9.5C6.5 9.22386 6.27614 9 6 9C5.72386 9 5.5 9.22386 5.5 9.5C5.5 9.77614 5.72386 10 6 10Z" stroke="#E59572" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                                                        </svg>
+                                                                    </Dropdown.Toggle>
 
-                                                                            </div>
-                                                                            {item?.walletAddress?.toLowerCase() === account?.toLowerCase() && (
-                                                                                <div className='drop_phonee'>
-                                                                                    <Dropdown>
-                                                                                        <Dropdown.Toggle variant="success" id="dropdown-basic">
-                                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
-                                                                                                <path d="M6 6.5C6.27614 6.5 6.5 6.27614 6.5 6C6.5 5.72386 6.27614 5.5 6 5.5C5.72386 5.5 5.5 5.72386 5.5 6C5.5 6.27614 5.72386 6.5 6 6.5Z" stroke="#E59572" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                                                                                <path d="M6 3C6.27614 3 6.5 2.77614 6.5 2.5C6.5 2.22386 6.27614 2 6 2C5.72386 2 5.5 2.22386 5.5 2.5C5.5 2.77614 5.72386 3 6 3Z" stroke="#E59572" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                                                                                <path d="M6 10C6.27614 10 6.5 9.77614 6.5 9.5C6.5 9.22386 6.27614 9 6 9C5.72386 9 5.5 9.22386 5.5 9.5C5.5 9.77614 5.72386 10 6 10Z" stroke="#E59572" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                                                                            </svg>
-                                                                                        </Dropdown.Toggle>
+                                                                    <Dropdown.Menu>
+                                                                        {/* <Dropdown.Item onClick={() => handleShow12(item?._id)} >Delete</Dropdown.Item>
+                                                                        <Dropdown.Item onClick={() => handleShow112(item?.comment, item?.walletAddress, item?._id)}>Edit</Dropdown.Item> */}
 
-                                                                                        <Dropdown.Menu>
-                                                                                            <Dropdown.Item onClick={() => handleShow12(item?._id)} >Delete</Dropdown.Item>
-                                                                                            <Dropdown.Item onClick={() => handleShow112(item?.comment, item?.walletAddress, item?._id)}>Edit</Dropdown.Item>
+                                                                        <Dropdown.Item>Delete</Dropdown.Item>
+                                                                        <Dropdown.Item>Edit</Dropdown.Item>
 
-                                                                                        </Dropdown.Menu>
-                                                                                    </Dropdown>
-                                                                                </div>)}
-                                                                        </div>
+                                                                    </Dropdown.Menu>
+                                                                </Dropdown>
+                                                            </div>
+                                                            {/* )} */}
+                                                        </div>
 
-                                                                        <h5>{item?.comment}</h5></div>
-                                                                </>
-                                                            )
+                                                        <h5> item
+                                                            {/* {item?.comment} */}
+                                                        </h5></div>
+                                                </>
+                                                {/* )
                                                         })
                                                     )
                                                         :
                                                         <p>No Comments Found!</p>
-                                                }
+                                                } */}
 
                                             </div>
                                         </div>
-                                        <div class="tab-pane fade" id="v-pills-Threadnew" role="tabpanel" aria-labelledby="v-pills-Threadnew-tab">
-                                            <Transactiontable ticker={detail?.ticker} isMobile={true} contractAddress={detail?.contractAddress} />
+                                        <div className="tab-pane fade" id="v-pills-Threadnew" role="tabpanel" aria-labelledby="v-pills-Threadnew-tab">
+                                            {/* <Transactiontable ticker={detail?.ticker} isMobile={true} contractAddress={detail?.contractAddress} /> */}
+                                            Transactiontable
                                         </div>
                                     </div>
                                 </div>
@@ -1869,7 +1898,7 @@ const page = () => {
                         <h6>Delete your comment permanently?</h6>
                         <div className='delllete'>
                             <button className='cannncel' onClick={handleClose12}>Cancel</button>
-                            <button disabled={commentDisable} className='delete' onClick={deleteComment}> {commentDisable ? <Spinner size={25} /> :
+                            <button disabled={commentDisable} className='delete' > {commentDisable ? <Spinner size="sm" /> :
                                 "Delete"}</button>
                         </div>
 
@@ -1888,12 +1917,12 @@ const page = () => {
                 </Modal.Header>
                 <Modal.Body>
                     <div className='success_modal'>
-                        <textarea id="w3review" name="w3review" maxLength="300" rows="4" cols="50" placeholder='Comment' value={updateComment} onChange={(e) => setUpdateComment(e.target.value)} />
+                        <textarea id="w3review" name="w3review" maxLength={300} rows={4} cols={50} placeholder='Comment' value={updateComment} onChange={(e) => setUpdateComment(e.target.value)} />
 
                         <div className='delllete'>
                             <button className='cannncel' onClick={handleClose112}>Cancel</button>
-                            <button disabled={commentDisable} onClick={updatingComment}>
-                                {commentDisable ? <Spinner size={25} /> :
+                            <button disabled={commentDisable}>
+                                {commentDisable ? <Spinner size="sm" /> :
                                     "Save Changes"}
                             </button>
                         </div>
