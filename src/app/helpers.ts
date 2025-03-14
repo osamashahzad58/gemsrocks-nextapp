@@ -50,3 +50,26 @@ export const getTimeInAges = (time: any) => {
         : "Unknown time";
     return lastUpdated
 }
+
+export const getFormatedWeb3Address = (address: string, isWalletAddress: boolean) => {
+    if (isWalletAddress) {
+        return `${address?.substring(0, 6)}...${address?.substring(38)}`;
+    }
+    else {
+        return `${address?.substring(0, 6)}...${address?.substring(62)}`;
+    }
+}
+
+export const handleShare = async (link: string) => {
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                url: link,
+            });
+        } catch (error) {
+            console.error("Error sharing:", error);
+        }
+    } else {
+        console.log("Web Share API not supported in this browser.");
+    }
+};

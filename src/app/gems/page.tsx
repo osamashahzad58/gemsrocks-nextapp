@@ -5,22 +5,25 @@ import Pagination from 'react-bootstrap/Pagination';
 import Footer from '../components/Footer';
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import Navbar from '../components/Landingpage/navbar';
+import { useSocketEvents } from '../sockets';
+import { useQuery } from '@tanstack/react-query';
+import { ethToDollarConverter, getAllGraduatedProjects } from '../services';
+import Link from 'next/link';
+import { formatEthinDollar, formatMarketCap, getTimeInAges } from '../helpers';
 
 const page = () => {
-    const token = localStorage?.getItem("accessToken")
     const [loader, setLoader] = useState(false);
     const [search, setSearch] = useState("");
     const [sortBy, setSortBy] = useState("createdAt");
     const [sortShow, setSortShow] = useState("New to Old");
     const [sortDis, setSortDis] = useState("desc");
     const [show, setShow] = useState(false);
-    const [rock, setRock] = useState([]);
+    const [gems, setGems] = useState<any>([]);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);  // This will be updated based on API response
     const [totalItems, setTotalItems] = useState(0);
-    const [ethPrice, setEthPrice] = useState(0);
     const [shake, setShake] = useState(false);
     const socketEvent = 'Graduated'
     const [debouncedSearch, setDebouncedSearch] = useState(search);
@@ -32,21 +35,21 @@ const page = () => {
         return () => clearTimeout(handler);
     }, [search]);
 
-    // const events = [
-    //     {
-    //         eventName: socketEvent,
-    //         handler: (data) => {
-    //             if (data !== null) {
-    //                 setRock([data, ...rock])
-    //                 setShake(true);
-    //                 setTimeout(() => {
-    //                     setShake(false);
-    //                 }, 1500);
-    //             }
-    //         },
-    //     }
-    // ];
-    // useSocketEvents(events);
+    const events = [
+        {
+            eventName: socketEvent,
+            handler: (data: any) => {
+                if (data !== null) {
+                    setGems([data, ...gems])
+                    setShake(true);
+                    setTimeout(() => {
+                        setShake(false);
+                    }, 1500);
+                }
+            },
+        }
+    ];
+    useSocketEvents(events);
 
     const handlePageChange = (page: any) => {
         if (page >= 1 && page <= totalPages) {
@@ -59,34 +62,24 @@ const page = () => {
         pageItems.push(i);  // Create an array of page numbers
     }
 
-    const getRocks = async () => {
-        // if (!search) {
-        //     setLoader(true);
-        // }
-        // try {
-        //     const { data } = await axios.get(`${api_url}project/get-all-graduated-projects-filtered?limit=12&page=${currentPage}&searchParam=${search}&sortBy=${sortBy}&sortDirection=${sortDis}`,);
-        //     setRock(data?.data?.projects);
-        //     setTotalPages(data?.data?.totalPages); // Assuming has totalPages
-        //     setTotalItems(data?.data?.total);
-        //     setLoader(false);
-        // } catch (error) {
-        //     // console.error("Error fetching gift collections:", error);
-        //     setLoader(false);
-        // }
-    };
-    useEffect(() => {
-        getRocks()
-    }, [currentPage, debouncedSearch, sortBy, sortDis]);
+    const { data: ethPrice } = useQuery({
+        queryKey: ["ethPrice"],
+        queryFn: async () => ethToDollarConverter(),
+    });
 
-    const fetchEthValue = async () => {
-        // const ethAmount = await ethToDollarConverter();
-        // setEthPrice(ethAmount);
-    };
+    const { data: allGraduatedProjectsData, isLoading } = useQuery({
+        queryKey: ["projectAllGraduatedData", currentPage, debouncedSearch, sortBy, sortDis],
+        queryFn: async () => getAllGraduatedProjects(currentPage, debouncedSearch, sortBy, sortDis),
+    });
 
     useEffect(() => {
-        window?.scroll(0, 0)
-        fetchEthValue()
-    }, []);
+        if (allGraduatedProjectsData) {
+            setGems(allGraduatedProjectsData?.projects);
+            setTotalPages(allGraduatedProjectsData?.totalPages); // Assuming has totalPages
+            setTotalItems(allGraduatedProjectsData?.total);
+            setLoader(false);
+        }
+    }, [allGraduatedProjectsData]);
 
     return (
         <>
@@ -155,10 +148,10 @@ const page = () => {
                                     <path d="M4 6L8 10L12 6" stroke="#311E1A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                                 </svg></button>
                         </div>
-                        {/* <div className='cards_section'>
+                        <div className='cards_section'>
                             {
-                                rock && rock?.length > 0 ? (
-                                    rock?.map((item, index) => {
+                                gems && gems?.length > 0 ? (
+                                    gems?.map((item: any, index: number) => {
                                         return (
                                             <>
                                                 <Link href={`/coin/${item?._id}`} >
@@ -193,7 +186,7 @@ const page = () => {
                                     <p>No Data Found!</p>
                             }
 
-                        </div> */}
+                        </div>
                         {totalPages > 1 &&
                             <div className="pagination_mains">
                                 <div>
